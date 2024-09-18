@@ -66,14 +66,50 @@ class QLearningAgent:
         td_delta = td_target - self.q_table[state, action]
         self.q_table[state, action] += self.alpha * td_delta
 
-# Initialize the agent
-agent = QLearningAgent(NUM_CITIES)
+def train_agent(agent, num_episodes):
+    for episode in range(num_episodes):
+        visited = set()
+        current_city = np.random.randint(NUM_CITIES)
+        total_reward = 0
+        agent_path = [current_city]
+        visited.add(current_city)
 
-# Training loop
-for episode in range(1000):
+        while len(visited) < NUM_CITIES:
+            action = agent.choose_action(current_city, visited)
+            if action is None:
+                break
+            
+            reward = -distance(cities[current_city], cities[action])
+            next_city = action
+            agent.update_q_table(current_city, next_city, reward, next_city)
+            
+            current_city = next_city
+            visited.add(current_city)
+            agent_path.append(current_city)
+            
+            # Draw the updated path and cities after each action
+            draw_background()
+            draw_cities(cities)
+            draw_path(cities, agent_path)
+            pygame.display.update()
+
+            time.sleep(0.5)
+
+        # Compute the total reward for the full tour
+        total_reward = -sum(distance(cities[agent_path[i]], cities[agent_path[i + 1]]) for i in range(len(agent_path) - 1))
+        total_reward -= distance(cities[agent_path[-1]], cities[agent_path[0]])  # Complete the loop
+
+        print(f"Episode {episode} - Total reward: {total_reward}")
+
+        # Refresh the screen after each episode
+        draw_background()
+        draw_cities(cities)
+        draw_path(cities, agent_path)
+        pygame.display.update()
+
+def test_agent(agent):
     visited = set()
     current_city = np.random.randint(NUM_CITIES)
-    total_reward = 0
     agent_path = [current_city]
     visited.add(current_city)
 
@@ -82,35 +118,32 @@ for episode in range(1000):
         if action is None:
             break
         
-        reward = -distance(cities[current_city], cities[action])
-        next_city = action
-        agent.update_q_table(current_city, next_city, reward, next_city)
-        
-        current_city = next_city
+        current_city = action
         visited.add(current_city)
         agent_path.append(current_city)
-        
-        # Draw the updated path and cities after each action
-        draw_background()
-        draw_cities(cities)
-        draw_path(cities, agent_path)
-        pygame.display.update()
-
-        time.sleep(0.5)
-
+    
     # Compute the total reward for the full tour
     total_reward = -sum(distance(cities[agent_path[i]], cities[agent_path[i + 1]]) for i in range(len(agent_path) - 1))
     total_reward -= distance(cities[agent_path[-1]], cities[agent_path[0]])  # Complete the loop
 
-    print(f"Episode {episode} - Total reward: {total_reward}")
+    print(f"Testing - Total reward: {total_reward}")
 
-    # Refresh the screen after each episode
+    # Draw the final path
     draw_background()
     draw_cities(cities)
     draw_path(cities, agent_path)
     pygame.display.update()
 
-# Main game loop (optional for interaction after training)
+# Initialize the agent
+agent = QLearningAgent(NUM_CITIES)
+
+# Train the agent
+train_agent(agent, num_episodes=400)
+
+# Test the agent
+test_agent(agent)
+
+# Main game loop (optional for interaction after testing)
 running = True
 while running:
     for event in pygame.event.get():
@@ -120,3 +153,4 @@ while running:
     pygame.display.update()
 
 pygame.quit()
+
