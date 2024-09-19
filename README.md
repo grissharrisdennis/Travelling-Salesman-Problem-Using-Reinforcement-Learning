@@ -20,7 +20,9 @@ Visualization: Pygame is used to render the cities, paths, and the learning proc
 To run this project locally, follow these steps:
 ### Clone the repository:
 git clone https://github.com/grissharrisdennis/Travelling-Salesman-Problem-Using-Reinforcement-Learning.git
+
 cd Travelling-Salesman-Problem-Using-Reinforcement-Learning
+
 ### Install the required dependencies:
 pip install -r requirements.txt
 ### Run the project:
